@@ -1,0 +1,2 @@
+# Footprint_Calculator_python
+A python based calculation from EXIOBASE Multi Regional Input Output (MRIO) database of EU-27 Land and Carbon footprints in Brazil

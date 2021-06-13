@@ -1,0 +1,2227 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 5,
+  "metadata": {
+    "colab": {
+      "name": "Appendix-2 (1).ipynb",
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "Python 3",
+      "language": "python",
+      "name": "python3"
+    },
+    "language_info": {
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "file_extension": ".py",
+      "mimetype": "text/x-python",
+      "name": "python",
+      "nbconvert_exporter": "python",
+      "pygments_lexer": "ipython3",
+      "version": "3.7.10"
+    },
+    "toc": {
+      "base_numbering": 1,
+      "nav_menu": {},
+      "number_sections": true,
+      "sideBar": true,
+      "skip_h1_title": false,
+      "title_cell": "Table of Contents",
+      "title_sidebar": "Contents",
+      "toc_cell": false,
+      "toc_position": {},
+      "toc_section_display": true,
+      "toc_window_display": false
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/akifnu/Env_footprint_calc_EU27_BR/blob/main/Python%20Codes\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "established-chassis"
+      },
+      "source": [
+        "**Appendix 3**"
+      ],
+      "id": "established-chassis"
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "powered-moisture"
+      },
+      "source": [
+        "**Calculation of CO2 , Greenhouse Gases and Land footprint of different EU countries in Brazil. (The python workbook)**"
+      ],
+      "id": "powered-moisture"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "hispanic-behalf"
+      },
+      "source": [
+        "import numpy as np\n",
+        "import xlrd, xlwt\n",
+        "import scipy.io\n",
+        "import pandas as pd\n",
+        "import matplotlib.pyplot as plt\n",
+        "import pylab\n",
+        "\n",
+        "%matplotlib inline"
+      ],
+      "id": "hispanic-behalf",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "oriental-vulnerability",
+        "outputId": "c057f77b-7a9d-41ef-cb87-836b23357d35"
+      },
+      "source": [
+        "# load MRIO model\n",
+        "FileString = r'C:\\Users\\Akif\\Downloads\\EXIOBASE3.4_2011_ITC.mat' #MRIO_2 from internal databases\n",
+        "MRIO = scipy.io.loadmat(FileString)\n",
+        "print(MRIO.keys())"
+      ],
+      "id": "oriental-vulnerability",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "dict_keys(['__header__', '__version__', '__globals__', 'EB3_Extensions_Units', 'EB3_Midpoints', 'EB3_Extensions_Labels', 'EB3_CharacterisationFactors', 'ScriptConfig', 'EB3_IndustryNames163', 'EB3_CharacterisationUnits', 'EB3_S_ITC', 'EB3_ProductNames163', 'EB3_L_ITC', 'EB3_FinalDemand_Emissions', 'EB3_Y', 'EB3_FDCats', 'EB3_RegionList', 'EB3_TableUnits'])\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "empirical-rider",
+        "outputId": "56560a8c-b1a2-4ce3-f895-7be17751f796"
+      },
+      "source": [
+        "# Get labels\n",
+        "Regions = MRIO['EB3_RegionList']\n",
+        "print(Regions)\n",
+        "print('')\n",
+        "Industries = MRIO['EB3_IndustryNames163']\n",
+        "print(Industries)\n",
+        "print('')\n",
+        "Products = MRIO['EB3_ProductNames163']\n",
+        "print(Products)\n",
+        "print('')\n",
+        "FD_Cats = MRIO['EB3_FDCats']\n",
+        "print(FD_Cats)\n",
+        "print('')\n",
+        "Midpoints = MRIO['EB3_Midpoints']\n",
+        "print(Midpoints)\n",
+        "print('')\n",
+        "MPUnits = MRIO['EB3_CharacterisationUnits']\n",
+        "print(MPUnits)\n",
+        "print('')\n",
+        "Y_mat=MRIO['EB3_Y']\n",
+        "L_mat=MRIO['EB3_L_ITC']\n",
+        "S_mat=MRIO['EB3_S_ITC']\n",
+        "Cf_mat=MRIO['EB3_CharacterisationFactors']\n",
+        "\n"
+      ],
+      "id": "empirical-rider",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "['Austria             ' 'Belgium             ' 'Bulgaria            '\n",
+            " 'Cyprus              ' 'Czech Republic      ' 'Germany             '\n",
+            " 'Denmark             ' 'Estonia             ' 'Spain               '\n",
+            " 'Finland             ' 'France              ' 'Greece              '\n",
+            " 'Croatia             ' 'Hungary             ' 'Ireland             '\n",
+            " 'Italy               ' 'Lithuania           ' 'Luxembourg          '\n",
+            " 'Latvia              ' 'Malta               ' 'Netherlands         '\n",
+            " 'Poland              ' 'Portugal            ' 'Romania             '\n",
+            " 'Sweden              ' 'Slovenia            ' 'Slovakia            '\n",
+            " 'United Kingdom      ' 'United States       ' 'Japan               '\n",
+            " 'China               ' 'Canada              ' 'South Korea         '\n",
+            " 'Brazil              ' 'India               ' 'Mexico              '\n",
+            " 'Russia              ' 'Australia           ' 'Switzerland         '\n",
+            " 'Turkey              ' 'Taiwan              ' 'Norway              '\n",
+            " 'Indonesia           ' 'South Africa        ' 'RoW Asia and Pacific'\n",
+            " 'RoW America         ' 'RoW Europe          ' 'RoW Africa          '\n",
+            " 'RoW Middle East     ']\n",
+            "\n",
+            "['Cultivation of paddy rice                                                                                                           '\n",
+            " 'Cultivation of wheat                                                                                                                '\n",
+            " 'Cultivation of cereal grains nec                                                                                                    '\n",
+            " 'Cultivation of vegetables, fruit, nuts                                                                                              '\n",
+            " 'Cultivation of oil seeds                                                                                                            '\n",
+            " 'Cultivation of sugar cane, sugar beet                                                                                               '\n",
+            " 'Cultivation of plant-based fibers                                                                                                   '\n",
+            " 'Cultivation of crops nec                                                                                                            '\n",
+            " 'Cattle farming                                                                                                                      '\n",
+            " 'Pigs farming                                                                                                                        '\n",
+            " 'Poultry farming                                                                                                                     '\n",
+            " 'Meat animals nec                                                                                                                    '\n",
+            " 'Animal products nec                                                                                                                 '\n",
+            " 'Raw milk                                                                                                                            '\n",
+            " 'Wool, silk-worm cocoons                                                                                                             '\n",
+            " 'Manure treatment (conventional), storage and land application                                                                       '\n",
+            " 'Manure treatment (biogas), storage and land application                                                                             '\n",
+            " 'Forestry, logging and related service activities (02)                                                                               '\n",
+            " 'Fishing, operating of fish hatcheries and fish farms; service activities incidental to fishing (05)                                 '\n",
+            " 'Mining of coal and lignite; extraction of peat (10)                                                                                 '\n",
+            " 'Extraction of crude petroleum and services related to crude oil extraction, excluding surveying                                     '\n",
+            " 'Extraction of natural gas and services related to natural gas extraction, excluding surveying                                       '\n",
+            " 'Extraction, liquefaction, and regasification of other petroleum and gaseous materials                                               '\n",
+            " 'Mining of uranium and thorium ores (12)                                                                                             '\n",
+            " 'Mining of iron ores                                                                                                                 '\n",
+            " 'Mining of copper ores and concentrates                                                                                              '\n",
+            " 'Mining of nickel ores and concentrates                                                                                              '\n",
+            " 'Mining of aluminium ores and concentrates                                                                                           '\n",
+            " 'Mining of precious metal ores and concentrates                                                                                      '\n",
+            " 'Mining of lead, zinc and tin ores and concentrates                                                                                  '\n",
+            " 'Mining of other non-ferrous metal ores and concentrates                                                                             '\n",
+            " 'Quarrying of stone                                                                                                                  '\n",
+            " 'Quarrying of sand and clay                                                                                                          '\n",
+            " 'Mining of chemical and fertilizer minerals, production of salt, other mining and quarrying n.e.c.                                   '\n",
+            " 'Processing of meat cattle                                                                                                           '\n",
+            " 'Processing of meat pigs                                                                                                             '\n",
+            " 'Processing of meat poultry                                                                                                          '\n",
+            " 'Production of meat products nec                                                                                                     '\n",
+            " 'Processing vegetable oils and fats                                                                                                  '\n",
+            " 'Processing of dairy products                                                                                                        '\n",
+            " 'Processed rice                                                                                                                      '\n",
+            " 'Sugar refining                                                                                                                      '\n",
+            " 'Processing of Food products nec                                                                                                     '\n",
+            " 'Manufacture of beverages                                                                                                            '\n",
+            " 'Manufacture of fish products                                                                                                        '\n",
+            " 'Manufacture of tobacco products (16)                                                                                                '\n",
+            " 'Manufacture of textiles (17)                                                                                                        '\n",
+            " 'Manufacture of wearing apparel; dressing and dyeing of fur (18)                                                                     '\n",
+            " 'Tanning and dressing of leather; manufacture of luggage, handbags, saddlery, harness and footwear (19)                              '\n",
+            " 'Manufacture of wood and of products of wood and cork, except furniture; manufacture of articles of straw and plaiting materials (20)'\n",
+            " 'Re-processing of secondary wood material into new wood material                                                                     '\n",
+            " 'Pulp                                                                                                                                '\n",
+            " 'Re-processing of secondary paper into new pulp                                                                                      '\n",
+            " 'Paper                                                                                                                               '\n",
+            " 'Publishing, printing and reproduction of recorded media (22)                                                                        '\n",
+            " 'Manufacture of coke oven products                                                                                                   '\n",
+            " 'Petroleum Refinery                                                                                                                  '\n",
+            " 'Processing of nuclear fuel                                                                                                          '\n",
+            " 'Plastics, basic                                                                                                                     '\n",
+            " 'Re-processing of secondary plastic into new plastic                                                                                 '\n",
+            " 'N-fertiliser                                                                                                                        '\n",
+            " 'P- and other fertiliser                                                                                                             '\n",
+            " 'Chemicals nec                                                                                                                       '\n",
+            " 'Manufacture of rubber and plastic products (25)                                                                                     '\n",
+            " 'Manufacture of glass and glass products                                                                                             '\n",
+            " 'Re-processing of secondary glass into new glass                                                                                     '\n",
+            " 'Manufacture of ceramic goods                                                                                                        '\n",
+            " 'Manufacture of bricks, tiles and construction products, in baked clay                                                               '\n",
+            " 'Manufacture of cement, lime and plaster                                                                                             '\n",
+            " 'Re-processing of ash into clinker                                                                                                   '\n",
+            " 'Manufacture of other non-metallic mineral products n.e.c.                                                                           '\n",
+            " 'Manufacture of basic iron and steel and of ferro-alloys and first products thereof                                                  '\n",
+            " 'Re-processing of secondary steel into new steel                                                                                     '\n",
+            " 'Precious metals production                                                                                                          '\n",
+            " 'Re-processing of secondary preciuos metals into new preciuos metals                                                                 '\n",
+            " 'Aluminium production                                                                                                                '\n",
+            " 'Re-processing of secondary aluminium into new aluminium                                                                             '\n",
+            " 'Lead, zinc and tin production                                                                                                       '\n",
+            " 'Re-processing of secondary lead into new lead, zinc and tin                                                                         '\n",
+            " 'Copper production                                                                                                                   '\n",
+            " 'Re-processing of secondary copper into new copper                                                                                   '\n",
+            " 'Other non-ferrous metal production                                                                                                  '\n",
+            " 'Re-processing of secondary other non-ferrous metals into new other non-ferrous metals                                               '\n",
+            " 'Casting of metals                                                                                                                   '\n",
+            " 'Manufacture of fabricated metal products, except machinery and equipment (28)                                                       '\n",
+            " 'Manufacture of machinery and equipment n.e.c. (29)                                                                                  '\n",
+            " 'Manufacture of office machinery and computers (30)                                                                                  '\n",
+            " 'Manufacture of electrical machinery and apparatus n.e.c. (31)                                                                       '\n",
+            " 'Manufacture of radio, television and communication equipment and apparatus (32)                                                     '\n",
+            " 'Manufacture of medical, precision and optical instruments, watches and clocks (33)                                                  '\n",
+            " 'Manufacture of motor vehicles, trailers and semi-trailers (34)                                                                      '\n",
+            " 'Manufacture of other transport equipment (35)                                                                                       '\n",
+            " 'Manufacture of furniture; manufacturing n.e.c. (36)                                                                                 '\n",
+            " 'Recycling of waste and scrap                                                                                                        '\n",
+            " 'Recycling of bottles by direct reuse                                                                                                '\n",
+            " 'Production of electricity by coal                                                                                                   '\n",
+            " 'Production of electricity by gas                                                                                                    '\n",
+            " 'Production of electricity by nuclear                                                                                                '\n",
+            " 'Production of electricity by hydro                                                                                                  '\n",
+            " 'Production of electricity by wind                                                                                                   '\n",
+            " 'Production of electricity by petroleum and other oil derivatives                                                                    '\n",
+            " 'Production of electricity by biomass and waste                                                                                      '\n",
+            " 'Production of electricity by solar photovoltaic                                                                                     '\n",
+            " 'Production of electricity by solar thermal                                                                                          '\n",
+            " 'Production of electricity by tide, wave, ocean                                                                                      '\n",
+            " 'Production of electricity by Geothermal                                                                                             '\n",
+            " 'Production of electricity nec                                                                                                       '\n",
+            " 'Transmission of electricity                                                                                                         '\n",
+            " 'Distribution and trade of electricity                                                                                               '\n",
+            " 'Manufacture of gas; distribution of gaseous fuels through mains                                                                     '\n",
+            " 'Steam and hot water supply                                                                                                          '\n",
+            " 'Collection, purification and distribution of water (41)                                                                             '\n",
+            " 'Construction (45)                                                                                                                   '\n",
+            " 'Re-processing of secondary construction material into aggregates                                                                    '\n",
+            " 'Sale, maintenance, repair of motor vehicles, motor vehicles parts, motorcycles, motor cycles parts and accessoiries                 '\n",
+            " 'Retail sale of automotive fuel                                                                                                      '\n",
+            " 'Wholesale trade and commission trade, except of motor vehicles and motorcycles (51)                                                 '\n",
+            " 'Retail trade, except of motor vehicles and motorcycles; repair of personal and household goods (52)                                 '\n",
+            " 'Hotels and restaurants (55)                                                                                                         '\n",
+            " 'Transport via railways                                                                                                              '\n",
+            " 'Other land transport                                                                                                                '\n",
+            " 'Transport via pipelines                                                                                                             '\n",
+            " 'Sea and coastal water transport                                                                                                     '\n",
+            " 'Inland water transport                                                                                                              '\n",
+            " 'Air transport (62)                                                                                                                  '\n",
+            " 'Supporting and auxiliary transport activities; activities of travel agencies (63)                                                   '\n",
+            " 'Post and telecommunications (64)                                                                                                    '\n",
+            " 'Financial intermediation, except insurance and pension funding (65)                                                                 '\n",
+            " 'Insurance and pension funding, except compulsory social security (66)                                                               '\n",
+            " 'Activities auxiliary to financial intermediation (67)                                                                               '\n",
+            " 'Real estate activities (70)                                                                                                         '\n",
+            " 'Renting of machinery and equipment without operator and of personal and household goods (71)                                        '\n",
+            " 'Computer and related activities (72)                                                                                                '\n",
+            " 'Research and development (73)                                                                                                       '\n",
+            " 'Other business activities (74)                                                                                                      '\n",
+            " 'Public administration and defence; compulsory social security (75)                                                                  '\n",
+            " 'Education (80)                                                                                                                      '\n",
+            " 'Health and social work (85)                                                                                                         '\n",
+            " 'Incineration of waste: Food                                                                                                         '\n",
+            " 'Incineration of waste: Paper                                                                                                        '\n",
+            " 'Incineration of waste: Plastic                                                                                                      '\n",
+            " 'Incineration of waste: Metals and Inert materials                                                                                   '\n",
+            " 'Incineration of waste: Textiles                                                                                                     '\n",
+            " 'Incineration of waste: Wood                                                                                                         '\n",
+            " 'Incineration of waste: Oil/Hazardous waste                                                                                          '\n",
+            " 'Biogasification of food waste, incl. land application                                                                               '\n",
+            " 'Biogasification of paper, incl. land application                                                                                    '\n",
+            " 'Biogasification of sewage slugde, incl. land application                                                                            '\n",
+            " 'Composting of food waste, incl. land application                                                                                    '\n",
+            " 'Composting of paper and wood, incl. land application                                                                                '\n",
+            " 'Waste water treatment, food                                                                                                         '\n",
+            " 'Waste water treatment, other                                                                                                        '\n",
+            " 'Landfill of waste: Food                                                                                                             '\n",
+            " 'Landfill of waste: Paper                                                                                                            '\n",
+            " 'Landfill of waste: Plastic                                                                                                          '\n",
+            " 'Landfill of waste: Inert/metal/hazardous                                                                                            '\n",
+            " 'Landfill of waste: Textiles                                                                                                         '\n",
+            " 'Landfill of waste: Wood                                                                                                             '\n",
+            " 'Activities of membership organisation n.e.c. (91)                                                                                   '\n",
+            " 'Recreational, cultural and sporting activities (92)                                                                                 '\n",
+            " 'Other service activities (93)                                                                                                       '\n",
+            " 'Private households with employed persons (95)                                                                                       '\n",
+            " 'Extra-territorial organizations and bodies                                                                                          ']\n",
+            "\n",
+            "['Paddy rice                                                                                                                             '\n",
+            " 'Wheat                                                                                                                                  '\n",
+            " 'Cereal grains nec                                                                                                                      '\n",
+            " 'Vegetables, fruit, nuts                                                                                                                '\n",
+            " 'Oil seeds                                                                                                                              '\n",
+            " 'Sugar cane, sugar beet                                                                                                                 '\n",
+            " 'Plant-based fibers                                                                                                                     '\n",
+            " 'Crops nec                                                                                                                              '\n",
+            " 'Cattle                                                                                                                                 '\n",
+            " 'Pigs                                                                                                                                   '\n",
+            " 'Poultry                                                                                                                                '\n",
+            " 'Meat animals nec                                                                                                                       '\n",
+            " 'Animal products nec                                                                                                                    '\n",
+            " 'Raw milk                                                                                                                               '\n",
+            " 'Wool, silk-worm cocoons                                                                                                                '\n",
+            " 'Manure (conventional treatment)                                                                                                        '\n",
+            " 'Manure (biogas treatment)                                                                                                              '\n",
+            " 'Products of forestry, logging and related services                                                                                     '\n",
+            " 'Fish and other fishing products; services incidental of fishing                                                                        '\n",
+            " 'Coal                                                                                                                                   '\n",
+            " 'Crude petroleum and services related to crude oil extraction, excluding surveying                                                      '\n",
+            " 'Natural gas and services related to natural gas extraction, excluding surveying                                                        '\n",
+            " 'Other Hydrocarbons                                                                                                                     '\n",
+            " 'Uranium and thorium ores                                                                                                               '\n",
+            " 'Iron ores                                                                                                                              '\n",
+            " 'Copper ores and concentrates                                                                                                           '\n",
+            " 'Nickel ores and concentrates                                                                                                           '\n",
+            " 'Aluminium ores and concentrates                                                                                                        '\n",
+            " 'Precious metal ores and concentrates                                                                                                   '\n",
+            " 'Lead, zinc and tin ores and concentrates                                                                                               '\n",
+            " 'Other non-ferrous metal ores and concentrates                                                                                          '\n",
+            " 'Stone                                                                                                                                  '\n",
+            " 'Sand and clay                                                                                                                          '\n",
+            " 'Chemical and fertilizer minerals, salt and other mining and quarrying products n.e.c.                                                  '\n",
+            " 'Products of meat cattle                                                                                                                '\n",
+            " 'Products of meat pigs                                                                                                                  '\n",
+            " 'Products of meat poultry                                                                                                               '\n",
+            " 'Meat products nec                                                                                                                      '\n",
+            " 'products of Vegetable oils and fats                                                                                                    '\n",
+            " 'Dairy products                                                                                                                         '\n",
+            " 'Processed rice                                                                                                                         '\n",
+            " 'Sugar                                                                                                                                  '\n",
+            " 'Food products nec                                                                                                                      '\n",
+            " 'Beverages                                                                                                                              '\n",
+            " 'Fish products                                                                                                                          '\n",
+            " 'Tobacco products                                                                                                                       '\n",
+            " 'Textiles                                                                                                                               '\n",
+            " 'Wearing apparel; furs                                                                                                                  '\n",
+            " 'Leather and leather products                                                                                                           '\n",
+            " 'Wood and products of wood and cork (except furniture); articles of straw and plaiting materials                                        '\n",
+            " 'Wood material for treatment, Re-processing of secondary wood material into new wood material                                           '\n",
+            " 'Pulp                                                                                                                                   '\n",
+            " 'Secondary paper for treatment, Re-processing of secondary paper into new pulp                                                          '\n",
+            " 'Paper and paper products                                                                                                               '\n",
+            " 'Printed matter and recorded media                                                                                                      '\n",
+            " 'Coke                                                                                                                                   '\n",
+            " 'Refinery products                                                                                                                      '\n",
+            " 'Nuclear fuel                                                                                                                           '\n",
+            " 'Plastics, basic                                                                                                                        '\n",
+            " 'Secondary plastic for treatment, Re-processing of secondary plastic into new plastic                                                   '\n",
+            " 'N-fertiliser                                                                                                                           '\n",
+            " 'P- and other fertiliser                                                                                                                '\n",
+            " 'Chemicals nec                                                                                                                          '\n",
+            " 'Rubber and plastic products                                                                                                            '\n",
+            " 'Glass and glass products                                                                                                               '\n",
+            " 'Secondary glass for treatment, Re-processing of secondary glass into new glass                                                         '\n",
+            " 'Ceramic goods                                                                                                                          '\n",
+            " 'Bricks, tiles and construction products, in baked clay                                                                                 '\n",
+            " 'Cement, lime and plaster                                                                                                               '\n",
+            " 'Ash for treatment, Re-processing of ash into clinker                                                                                   '\n",
+            " 'Other non-metallic mineral products                                                                                                    '\n",
+            " 'Basic iron and steel and of ferro-alloys and first products thereof                                                                    '\n",
+            " 'Secondary steel for treatment, Re-processing of secondary steel into new steel                                                         '\n",
+            " 'Precious metals                                                                                                                        '\n",
+            " 'Secondary preciuos metals for treatment, Re-processing of secondary preciuos metals into new preciuos metals                           '\n",
+            " 'Aluminium and aluminium products                                                                                                       '\n",
+            " 'Secondary aluminium for treatment, Re-processing of secondary aluminium into new aluminium                                             '\n",
+            " 'Lead, zinc and tin and products thereof                                                                                                '\n",
+            " 'Secondary lead for treatment, Re-processing of secondary lead into new lead                                                            '\n",
+            " 'Copper products                                                                                                                        '\n",
+            " 'Secondary copper for treatment, Re-processing of secondary copper into new copper                                                      '\n",
+            " 'Other non-ferrous metal products                                                                                                       '\n",
+            " 'Secondary other non-ferrous metals for treatment, Re-processing of secondary other non-ferrous metals into new other non-ferrous metals'\n",
+            " 'Foundry work services                                                                                                                  '\n",
+            " 'Fabricated metal products, except machinery and equipment                                                                              '\n",
+            " 'Machinery and equipment n.e.c.                                                                                                         '\n",
+            " 'Office machinery and computers                                                                                                         '\n",
+            " 'Electrical machinery and apparatus n.e.c.                                                                                              '\n",
+            " 'Radio, television and communication equipment and apparatus                                                                            '\n",
+            " 'Medical, precision and optical instruments, watches and clocks                                                                         '\n",
+            " 'Motor vehicles, trailers and semi-trailers                                                                                             '\n",
+            " 'Other transport equipment                                                                                                              '\n",
+            " 'Furniture; other manufactured goods n.e.c.                                                                                             '\n",
+            " 'Secondary raw materials                                                                                                                '\n",
+            " 'Bottles for treatment, Recycling of bottles by direct reuse                                                                            '\n",
+            " 'Electricity by coal                                                                                                                    '\n",
+            " 'Electricity by gas                                                                                                                     '\n",
+            " 'Electricity by nuclear                                                                                                                 '\n",
+            " 'Electricity by hydro                                                                                                                   '\n",
+            " 'Electricity by wind                                                                                                                    '\n",
+            " 'Electricity by petroleum and other oil derivatives                                                                                     '\n",
+            " 'Electricity by biomass and waste                                                                                                       '\n",
+            " 'Electricity by solar photovoltaic                                                                                                      '\n",
+            " 'Electricity by solar thermal                                                                                                           '\n",
+            " 'Electricity by tide, wave, ocean                                                                                                       '\n",
+            " 'Electricity by Geothermal                                                                                                              '\n",
+            " 'Electricity nec                                                                                                                        '\n",
+            " 'Transmission services of electricity                                                                                                   '\n",
+            " 'Distribution and trade services of electricity                                                                                         '\n",
+            " 'Distribution services of gaseous fuels through mains                                                                                   '\n",
+            " 'Steam and hot water supply services                                                                                                    '\n",
+            " 'Collected and purified water, distribution services of water                                                                           '\n",
+            " 'Construction work                                                                                                                      '\n",
+            " 'Secondary construction material for treatment, Re-processing of secondary construction material into aggregates                        '\n",
+            " 'Sale, maintenance, repair of motor vehicles, motor vehicles parts, motorcycles, motor cycles parts and accessoiries                    '\n",
+            " 'Retail trade services of motor fuel                                                                                                    '\n",
+            " 'Wholesale trade and commission trade services, except of motor vehicles and motorcycles                                                '\n",
+            " 'Retail  trade services, except of motor vehicles and motorcycles; repair services of personal and household goods                      '\n",
+            " 'Hotel and restaurant services                                                                                                          '\n",
+            " 'Railway transportation services                                                                                                        '\n",
+            " 'Other land transportation services                                                                                                     '\n",
+            " 'Transportation services via pipelines                                                                                                  '\n",
+            " 'Sea and coastal water transportation services                                                                                          '\n",
+            " 'Inland water transportation services                                                                                                   '\n",
+            " 'Air transport services                                                                                                                 '\n",
+            " 'Supporting and auxiliary transport services; travel agency services                                                                    '\n",
+            " 'Post and telecommunication services                                                                                                    '\n",
+            " 'Financial intermediation services, except insurance and pension funding services                                                       '\n",
+            " 'Insurance and pension funding services, except compulsory social security services                                                     '\n",
+            " 'Services auxiliary to financial intermediation                                                                                         '\n",
+            " 'Real estate services                                                                                                                   '\n",
+            " 'Renting services of machinery and equipment without operator and of personal and household goods                                       '\n",
+            " 'Computer and related services                                                                                                          '\n",
+            " 'Research and development services                                                                                                      '\n",
+            " 'Other business services                                                                                                                '\n",
+            " 'Public administration and defence services; compulsory social security services                                                        '\n",
+            " 'Education services                                                                                                                     '\n",
+            " 'Health and social work services                                                                                                        '\n",
+            " 'Food waste for treatment: incineration                                                                                                 '\n",
+            " 'Paper waste for treatment: incineration                                                                                                '\n",
+            " 'Plastic waste for treatment: incineration                                                                                              '\n",
+            " 'Intert/metal waste for treatment: incineration                                                                                         '\n",
+            " 'Textiles waste for treatment: incineration                                                                                             '\n",
+            " 'Wood waste for treatment: incineration                                                                                                 '\n",
+            " 'Oil/hazardous waste for treatment: incineration                                                                                        '\n",
+            " 'Food waste for treatment: biogasification and land application                                                                         '\n",
+            " 'Paper waste for treatment: biogasification and land application                                                                        '\n",
+            " 'Sewage sludge for treatment: biogasification and land application                                                                      '\n",
+            " 'Food waste for treatment: composting and land application                                                                              '\n",
+            " 'Paper and wood waste for treatment: composting and land application                                                                    '\n",
+            " 'Food waste for treatment: waste water treatment                                                                                        '\n",
+            " 'Other waste for treatment: waste water treatment                                                                                       '\n",
+            " 'Food waste for treatment: landfill                                                                                                     '\n",
+            " 'Paper for treatment: landfill                                                                                                          '\n",
+            " 'Plastic waste for treatment: landfill                                                                                                  '\n",
+            " 'Inert/metal/hazardous waste for treatment: landfill                                                                                    '\n",
+            " 'Textiles waste for treatment: landfill                                                                                                 '\n",
+            " 'Wood waste for treatment: landfill                                                                                                     '\n",
+            " 'Membership organisation services n.e.c.                                                                                                '\n",
+            " 'Recreational, cultural and sporting services                                                                                           '\n",
+            " 'Other services                                                                                                                         '\n",
+            " 'Private households with employed persons                                                                                               '\n",
+            " 'Extra-territorial organizations and bodies                                                                                             ']\n",
+            "\n",
+            "['Final consumption expenditure by households                                         '\n",
+            " 'Final consumption expenditure by non-profit organisations serving households (NPISH)'\n",
+            " 'Final consumption expenditure by government                                         '\n",
+            " 'Gross fixed capital formation                                                       '\n",
+            " 'Changes in inventories                                                              '\n",
+            " 'Changes in valuables                                                                '\n",
+            " 'Exports: Total (fob)                                                                ']\n",
+            "\n",
+            "['CO2 - GWP100                               '\n",
+            " 'CH4 - GWP100                               '\n",
+            " 'N2O - GWP100                               '\n",
+            " 'SF6 - GWP100                               '\n",
+            " 'Global Warming Potential 100               '\n",
+            " 'Land use - crops                           '\n",
+            " 'Land use - pasture                         '\n",
+            " 'Land use - forest                          '\n",
+            " 'Land use                                   '\n",
+            " 'Total Emission relevant energy use         '\n",
+            " 'Total Energy inputs from nature            '\n",
+            " 'Total Energy supply                        '\n",
+            " 'Total Energy Use                           '\n",
+            " 'Domestic extraction  - primary crops       '\n",
+            " 'Domestic extraction  - crops residues      '\n",
+            " 'Domestic extraction  - fodder crops        '\n",
+            " 'Domestic extraction - grazing              '\n",
+            " 'Domestic extraction - wood                 '\n",
+            " 'Domestic extraction - aquatic animals      '\n",
+            " 'Domestic extraction - metal ores           '\n",
+            " 'Domestic extraction - nonmetallic minerals '\n",
+            " 'Domestic extraction - fossil fuels         '\n",
+            " 'Domestic extraction used Total             '\n",
+            " 'Domestic extraction unused                 '\n",
+            " 'Material extraction Total - used and unused'\n",
+            " 'Water Consumption Green - Agriculture      '\n",
+            " 'Water Consumption Blue - Agriculture       '\n",
+            " 'Water Consumption Blue - Livestock         '\n",
+            " 'Water Consumption Blue - Manufacturing     '\n",
+            " 'Water Consumption Blue - Electricity       '\n",
+            " 'Water Consumption Blue - Domestic          '\n",
+            " 'Water Consumption Blue - Total             '\n",
+            " 'Water Withdrawal Blue - Manufacturing      '\n",
+            " 'Water Withdrawal Blue - Electricity        '\n",
+            " 'Water Withdrawal Blue - Domestic           '\n",
+            " 'Water Withdrawal Blue - Total              ']\n",
+            "\n",
+            "['kg CO2eq' 'kg CO2eq' 'kg CO2eq' 'kg CO2eq' 'kg CO2eq' 'km2     '\n",
+            " 'km2     ' 'km2     ' 'km2     ' 'TJ      ' 'TJ      ' 'TJ      '\n",
+            " 'TJ      ' 'kt      ' 'kt      ' 'kt      ' 'kt      ' 'kt      '\n",
+            " 'kt      ' 'kt      ' 'kt      ' 'kt      ' 'kt      ' 'kt      '\n",
+            " 'kt      ' 'Mm3     ' 'Mm3     ' 'Mm3     ' 'Mm3     ' 'Mm3     '\n",
+            " 'Mm3     ' 'Mm3     ' 'Mm3     ' 'Mm3     ' 'Mm3     ' 'Mm3     ']\n",
+            "\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "given-morgan",
+        "outputId": "5db95338-95ee-4213-d3ed-5bf43f925fdd"
+      },
+      "source": [
+        "# EU countries\n",
+        "EU_countries=Regions[0:27]\n",
+        "EU_countries\n"
+      ],
+      "id": "given-morgan",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array(['Austria             ', 'Belgium             ',\n",
+              "       'Bulgaria            ', 'Cyprus              ',\n",
+              "       'Czech Republic      ', 'Germany             ',\n",
+              "       'Denmark             ', 'Estonia             ',\n",
+              "       'Spain               ', 'Finland             ',\n",
+              "       'France              ', 'Greece              ',\n",
+              "       'Croatia             ', 'Hungary             ',\n",
+              "       'Ireland             ', 'Italy               ',\n",
+              "       'Lithuania           ', 'Luxembourg          ',\n",
+              "       'Latvia              ', 'Malta               ',\n",
+              "       'Netherlands         ', 'Poland              ',\n",
+              "       'Portugal            ', 'Romania             ',\n",
+              "       'Sweden              ', 'Slovenia            ',\n",
+              "       'Slovakia            '], dtype='<U20')"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 4
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "loaded-wiring",
+        "outputId": "4d52520d-91fe-4d00-b28c-1bee22746f1b"
+      },
+      "source": [
+        "print(Y_mat.shape)\n",
+        "print(L_mat.shape)\n",
+        "print(S_mat.shape)\n",
+        "print(Cf_mat.shape)"
+      ],
+      "id": "loaded-wiring",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "(7987, 343)\n",
+            "(7987, 7987)\n",
+            "(1104, 7987)\n",
+            "(36, 1104)\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "hybrid-counter"
+      },
+      "source": [
+        "cno=33 # brazil\n",
+        "euno= 27 # eu country num\n",
+        "nop= 163 # products num\n",
+        "nor= 49 # region num\n",
+        "nos=7 # sectors of consumption\n",
+        "midno=[0,4,5,6,7,8] #CO2,GWP,LU\n",
+        "finalunits=[\"Mt CO2eq\",\"Mt CO2eq\",\"(1000) Km2\"] # part of a failed effort to convert the final units"
+      ],
+      "id": "hybrid-counter",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "absolute-scratch"
+      },
+      "source": [
+        "X_full=np.einsum('fs,sy->fy',L_mat,Y_mat)\n",
+        "# X=LY"
+      ],
+      "id": "absolute-scratch",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "contemporary-glossary",
+        "outputId": "d5f58705-2b6f-4202-8e7a-8ec3ad6b4b66"
+      },
+      "source": [
+        "X_full.shape #columns=(49 country X 7 sectors of Consumption)"
+      ],
+      "id": "contemporary-glossary",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(7987, 343)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 22
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "earlier-corrections",
+        "outputId": "9088cf59-ff85-4bfa-d96a-2c4d8ded3452"
+      },
+      "source": [
+        "Scf=np.einsum('fs,sy->fy',Cf_mat,S_mat)\n",
+        "Scf.shape"
+      ],
+      "id": "earlier-corrections",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(36, 7987)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 23
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "suspended-clinton",
+        "outputId": "8c84db91-d001-4ac0-ac02-0bfde5785da1"
+      },
+      "source": [
+        "Midpoints[midno]"
+      ],
+      "id": "suspended-clinton",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array(['CO2 - GWP100                               ',\n",
+              "       'Global Warming Potential 100               ',\n",
+              "       'Land use - crops                           ',\n",
+              "       'Land use - pasture                         ',\n",
+              "       'Land use - forest                          ',\n",
+              "       'Land use                                   '], dtype='<U43')"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 24
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "sitting-replacement"
+      },
+      "source": [
+        "### Finding Countrywise Imact ###"
+      ],
+      "id": "sitting-replacement"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "alternate-delivery",
+        "outputId": "e556c6cc-206d-4be0-bdd4-a22ae1fbeaba"
+      },
+      "source": [
+        "Scf_br=Scf[midno,cno*nop:(cno+1)*nop] #slicing all the brazil part from column\n",
+        "Scf_br.shape"
+      ],
+      "id": "alternate-delivery",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(6, 163)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 25
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "entire-current",
+        "outputId": "1d912dab-2a12-4c00-c4c0-ade9c9304a85"
+      },
+      "source": [
+        "X_full_br_eu=X_full[cno*nop:(cno+1)*nop,0:euno*nos] \n",
+        "## (from rows, slicing all the brazil part and from column, slicing only the EU(27) part)\n",
+        "X_full_br_eu.shape"
+      ],
+      "id": "entire-current",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(163, 189)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 26
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "harmful-friend",
+        "outputId": "86818e61-bb7a-41b7-81ef-925c4b700cfa"
+      },
+      "source": [
+        "XC=Scf_br.dot(X_full_br_eu)\n",
+        "XC.shape"
+      ],
+      "id": "harmful-friend",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(6, 189)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 27
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "saving-marketing",
+        "outputId": "d7720add-4273-4cdf-ca18-ce6aa1ba2e96"
+      },
+      "source": [
+        "XC_agg=np.zeros((6,27))\n",
+        "#filling up a blank array with zeros\n",
+        "XC_agg.shape\n"
+      ],
+      "id": "saving-marketing",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(6, 27)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 28
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "pleased-purse"
+      },
+      "source": [
+        "# a for loop to sum the country wise results\n",
+        "for m in range(0,euno):\n",
+        "    XC_agg[:,m]=XC[:,m*nos:(m+1)*nos].sum(axis=1)\n"
+      ],
+      "id": "pleased-purse",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "oriental-feeling",
+        "outputId": "988295df-040f-4500-8720-63dcb5768154"
+      },
+      "source": [
+        "#visualizing in pandas DataFrame\n",
+        "df1=pd.DataFrame(XC_agg, columns=[Regions[0:27]],index=[Midpoints[midno],MPUnits[midno]])\n",
+        "df1"
+      ],
+      "id": "oriental-feeling",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead tr th {\n",
+              "        text-align: left;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th>Austria</th>\n",
+              "      <th>Belgium</th>\n",
+              "      <th>Bulgaria</th>\n",
+              "      <th>Cyprus</th>\n",
+              "      <th>Czech Republic</th>\n",
+              "      <th>Germany</th>\n",
+              "      <th>Denmark</th>\n",
+              "      <th>Estonia</th>\n",
+              "      <th>Spain</th>\n",
+              "      <th>Finland</th>\n",
+              "      <th>...</th>\n",
+              "      <th>Luxembourg</th>\n",
+              "      <th>Latvia</th>\n",
+              "      <th>Malta</th>\n",
+              "      <th>Netherlands</th>\n",
+              "      <th>Poland</th>\n",
+              "      <th>Portugal</th>\n",
+              "      <th>Romania</th>\n",
+              "      <th>Sweden</th>\n",
+              "      <th>Slovenia</th>\n",
+              "      <th>Slovakia</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>CO2 - GWP100</th>\n",
+              "      <th>kg CO2eq</th>\n",
+              "      <td>1.406112e+08</td>\n",
+              "      <td>3.554877e+08</td>\n",
+              "      <td>2.640565e+07</td>\n",
+              "      <td>5.044336e+06</td>\n",
+              "      <td>8.231466e+07</td>\n",
+              "      <td>1.698480e+09</td>\n",
+              "      <td>1.200831e+08</td>\n",
+              "      <td>1.196313e+07</td>\n",
+              "      <td>7.260155e+08</td>\n",
+              "      <td>1.454431e+08</td>\n",
+              "      <td>...</td>\n",
+              "      <td>1.429498e+07</td>\n",
+              "      <td>1.089796e+07</td>\n",
+              "      <td>5.135669e+06</td>\n",
+              "      <td>4.219143e+08</td>\n",
+              "      <td>2.453728e+08</td>\n",
+              "      <td>3.450021e+08</td>\n",
+              "      <td>7.566167e+07</td>\n",
+              "      <td>2.303119e+08</td>\n",
+              "      <td>3.372395e+07</td>\n",
+              "      <td>4.217109e+07</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Global Warming Potential 100</th>\n",
+              "      <th>kg CO2eq</th>\n",
+              "      <td>3.200855e+08</td>\n",
+              "      <td>1.068805e+09</td>\n",
+              "      <td>7.102655e+07</td>\n",
+              "      <td>1.521645e+07</td>\n",
+              "      <td>1.789706e+08</td>\n",
+              "      <td>5.039924e+09</td>\n",
+              "      <td>2.469383e+08</td>\n",
+              "      <td>2.499558e+07</td>\n",
+              "      <td>2.023731e+09</td>\n",
+              "      <td>4.040297e+08</td>\n",
+              "      <td>...</td>\n",
+              "      <td>5.291351e+07</td>\n",
+              "      <td>2.525722e+07</td>\n",
+              "      <td>1.036888e+07</td>\n",
+              "      <td>1.101147e+09</td>\n",
+              "      <td>5.464986e+08</td>\n",
+              "      <td>9.517070e+08</td>\n",
+              "      <td>1.865556e+08</td>\n",
+              "      <td>6.140628e+08</td>\n",
+              "      <td>1.090945e+08</td>\n",
+              "      <td>8.213254e+07</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Land use - crops</th>\n",
+              "      <th>km2</th>\n",
+              "      <td>5.006644e+02</td>\n",
+              "      <td>2.104112e+03</td>\n",
+              "      <td>1.250540e+02</td>\n",
+              "      <td>3.155097e+01</td>\n",
+              "      <td>3.377950e+02</td>\n",
+              "      <td>8.371426e+03</td>\n",
+              "      <td>3.459755e+02</td>\n",
+              "      <td>4.988352e+01</td>\n",
+              "      <td>6.687584e+03</td>\n",
+              "      <td>4.185196e+02</td>\n",
+              "      <td>...</td>\n",
+              "      <td>9.159678e+01</td>\n",
+              "      <td>4.295377e+01</td>\n",
+              "      <td>1.711850e+01</td>\n",
+              "      <td>2.385811e+03</td>\n",
+              "      <td>9.591758e+02</td>\n",
+              "      <td>1.461194e+03</td>\n",
+              "      <td>3.025729e+02</td>\n",
+              "      <td>7.237827e+02</td>\n",
+              "      <td>3.082110e+02</td>\n",
+              "      <td>1.703416e+02</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Land use - pasture</th>\n",
+              "      <th>km2</th>\n",
+              "      <td>6.532057e+02</td>\n",
+              "      <td>2.578650e+03</td>\n",
+              "      <td>1.600076e+02</td>\n",
+              "      <td>3.553213e+01</td>\n",
+              "      <td>3.672194e+02</td>\n",
+              "      <td>1.164855e+04</td>\n",
+              "      <td>4.140272e+02</td>\n",
+              "      <td>5.382720e+01</td>\n",
+              "      <td>5.872476e+03</td>\n",
+              "      <td>8.053315e+02</td>\n",
+              "      <td>...</td>\n",
+              "      <td>1.281717e+02</td>\n",
+              "      <td>5.168513e+01</td>\n",
+              "      <td>1.566452e+01</td>\n",
+              "      <td>2.587439e+03</td>\n",
+              "      <td>1.105965e+03</td>\n",
+              "      <td>1.201713e+03</td>\n",
+              "      <td>3.625386e+02</td>\n",
+              "      <td>1.246377e+03</td>\n",
+              "      <td>3.200403e+02</td>\n",
+              "      <td>1.737542e+02</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Land use - forest</th>\n",
+              "      <th>km2</th>\n",
+              "      <td>3.725710e+02</td>\n",
+              "      <td>2.478379e+03</td>\n",
+              "      <td>1.044529e+02</td>\n",
+              "      <td>1.967214e+01</td>\n",
+              "      <td>2.486685e+02</td>\n",
+              "      <td>7.779773e+03</td>\n",
+              "      <td>3.012305e+02</td>\n",
+              "      <td>3.174754e+01</td>\n",
+              "      <td>3.421022e+03</td>\n",
+              "      <td>4.761503e+02</td>\n",
+              "      <td>...</td>\n",
+              "      <td>7.754486e+01</td>\n",
+              "      <td>3.244339e+01</td>\n",
+              "      <td>9.713652e+00</td>\n",
+              "      <td>1.605920e+03</td>\n",
+              "      <td>8.059092e+02</td>\n",
+              "      <td>1.891284e+03</td>\n",
+              "      <td>2.471999e+02</td>\n",
+              "      <td>6.569606e+02</td>\n",
+              "      <td>1.563945e+02</td>\n",
+              "      <td>1.031643e+02</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Land use</th>\n",
+              "      <th>km2</th>\n",
+              "      <td>1.640296e+03</td>\n",
+              "      <td>7.918514e+03</td>\n",
+              "      <td>4.214345e+02</td>\n",
+              "      <td>9.276690e+01</td>\n",
+              "      <td>1.029674e+03</td>\n",
+              "      <td>3.017718e+04</td>\n",
+              "      <td>1.153287e+03</td>\n",
+              "      <td>1.451601e+02</td>\n",
+              "      <td>1.702652e+04</td>\n",
+              "      <td>1.845509e+03</td>\n",
+              "      <td>...</td>\n",
+              "      <td>3.210105e+02</td>\n",
+              "      <td>1.369967e+02</td>\n",
+              "      <td>4.546509e+01</td>\n",
+              "      <td>7.069927e+03</td>\n",
+              "      <td>3.117329e+03</td>\n",
+              "      <td>5.132153e+03</td>\n",
+              "      <td>9.878538e+02</td>\n",
+              "      <td>2.827883e+03</td>\n",
+              "      <td>8.324387e+02</td>\n",
+              "      <td>4.787863e+02</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "<p>6 rows × 27 columns</p>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "                                                     Austria               \\\n",
+              "CO2 - GWP100                                kg CO2eq         1.406112e+08   \n",
+              "Global Warming Potential 100                kg CO2eq         3.200855e+08   \n",
+              "Land use - crops                            km2              5.006644e+02   \n",
+              "Land use - pasture                          km2              6.532057e+02   \n",
+              "Land use - forest                           km2              3.725710e+02   \n",
+              "Land use                                    km2              1.640296e+03   \n",
+              "\n",
+              "                                                     Belgium               \\\n",
+              "CO2 - GWP100                                kg CO2eq         3.554877e+08   \n",
+              "Global Warming Potential 100                kg CO2eq         1.068805e+09   \n",
+              "Land use - crops                            km2              2.104112e+03   \n",
+              "Land use - pasture                          km2              2.578650e+03   \n",
+              "Land use - forest                           km2              2.478379e+03   \n",
+              "Land use                                    km2              7.918514e+03   \n",
+              "\n",
+              "                                                     Bulgaria              \\\n",
+              "CO2 - GWP100                                kg CO2eq         2.640565e+07   \n",
+              "Global Warming Potential 100                kg CO2eq         7.102655e+07   \n",
+              "Land use - crops                            km2              1.250540e+02   \n",
+              "Land use - pasture                          km2              1.600076e+02   \n",
+              "Land use - forest                           km2              1.044529e+02   \n",
+              "Land use                                    km2              4.214345e+02   \n",
+              "\n",
+              "                                                     Cyprus                \\\n",
+              "CO2 - GWP100                                kg CO2eq         5.044336e+06   \n",
+              "Global Warming Potential 100                kg CO2eq         1.521645e+07   \n",
+              "Land use - crops                            km2              3.155097e+01   \n",
+              "Land use - pasture                          km2              3.553213e+01   \n",
+              "Land use - forest                           km2              1.967214e+01   \n",
+              "Land use                                    km2              9.276690e+01   \n",
+              "\n",
+              "                                                     Czech Republic        \\\n",
+              "CO2 - GWP100                                kg CO2eq         8.231466e+07   \n",
+              "Global Warming Potential 100                kg CO2eq         1.789706e+08   \n",
+              "Land use - crops                            km2              3.377950e+02   \n",
+              "Land use - pasture                          km2              3.672194e+02   \n",
+              "Land use - forest                           km2              2.486685e+02   \n",
+              "Land use                                    km2              1.029674e+03   \n",
+              "\n",
+              "                                                     Germany               \\\n",
+              "CO2 - GWP100                                kg CO2eq         1.698480e+09   \n",
+              "Global Warming Potential 100                kg CO2eq         5.039924e+09   \n",
+              "Land use - crops                            km2              8.371426e+03   \n",
+              "Land use - pasture                          km2              1.164855e+04   \n",
+              "Land use - forest                           km2              7.779773e+03   \n",
+              "Land use                                    km2              3.017718e+04   \n",
+              "\n",
+              "                                                     Denmark               \\\n",
+              "CO2 - GWP100                                kg CO2eq         1.200831e+08   \n",
+              "Global Warming Potential 100                kg CO2eq         2.469383e+08   \n",
+              "Land use - crops                            km2              3.459755e+02   \n",
+              "Land use - pasture                          km2              4.140272e+02   \n",
+              "Land use - forest                           km2              3.012305e+02   \n",
+              "Land use                                    km2              1.153287e+03   \n",
+              "\n",
+              "                                                     Estonia               \\\n",
+              "CO2 - GWP100                                kg CO2eq         1.196313e+07   \n",
+              "Global Warming Potential 100                kg CO2eq         2.499558e+07   \n",
+              "Land use - crops                            km2              4.988352e+01   \n",
+              "Land use - pasture                          km2              5.382720e+01   \n",
+              "Land use - forest                           km2              3.174754e+01   \n",
+              "Land use                                    km2              1.451601e+02   \n",
+              "\n",
+              "                                                     Spain                 \\\n",
+              "CO2 - GWP100                                kg CO2eq         7.260155e+08   \n",
+              "Global Warming Potential 100                kg CO2eq         2.023731e+09   \n",
+              "Land use - crops                            km2              6.687584e+03   \n",
+              "Land use - pasture                          km2              5.872476e+03   \n",
+              "Land use - forest                           km2              3.421022e+03   \n",
+              "Land use                                    km2              1.702652e+04   \n",
+              "\n",
+              "                                                     Finland               \\\n",
+              "CO2 - GWP100                                kg CO2eq         1.454431e+08   \n",
+              "Global Warming Potential 100                kg CO2eq         4.040297e+08   \n",
+              "Land use - crops                            km2              4.185196e+02   \n",
+              "Land use - pasture                          km2              8.053315e+02   \n",
+              "Land use - forest                           km2              4.761503e+02   \n",
+              "Land use                                    km2              1.845509e+03   \n",
+              "\n",
+              "                                                      ...  \\\n",
+              "CO2 - GWP100                                kg CO2eq  ...   \n",
+              "Global Warming Potential 100                kg CO2eq  ...   \n",
+              "Land use - crops                            km2       ...   \n",
+              "Land use - pasture                          km2       ...   \n",
+              "Land use - forest                           km2       ...   \n",
+              "Land use                                    km2       ...   \n",
+              "\n",
+              "                                                     Luxembourg            \\\n",
+              "CO2 - GWP100                                kg CO2eq         1.429498e+07   \n",
+              "Global Warming Potential 100                kg CO2eq         5.291351e+07   \n",
+              "Land use - crops                            km2              9.159678e+01   \n",
+              "Land use - pasture                          km2              1.281717e+02   \n",
+              "Land use - forest                           km2              7.754486e+01   \n",
+              "Land use                                    km2              3.210105e+02   \n",
+              "\n",
+              "                                                     Latvia                \\\n",
+              "CO2 - GWP100                                kg CO2eq         1.089796e+07   \n",
+              "Global Warming Potential 100                kg CO2eq         2.525722e+07   \n",
+              "Land use - crops                            km2              4.295377e+01   \n",
+              "Land use - pasture                          km2              5.168513e+01   \n",
+              "Land use - forest                           km2              3.244339e+01   \n",
+              "Land use                                    km2              1.369967e+02   \n",
+              "\n",
+              "                                                     Malta                 \\\n",
+              "CO2 - GWP100                                kg CO2eq         5.135669e+06   \n",
+              "Global Warming Potential 100                kg CO2eq         1.036888e+07   \n",
+              "Land use - crops                            km2              1.711850e+01   \n",
+              "Land use - pasture                          km2              1.566452e+01   \n",
+              "Land use - forest                           km2              9.713652e+00   \n",
+              "Land use                                    km2              4.546509e+01   \n",
+              "\n",
+              "                                                     Netherlands           \\\n",
+              "CO2 - GWP100                                kg CO2eq         4.219143e+08   \n",
+              "Global Warming Potential 100                kg CO2eq         1.101147e+09   \n",
+              "Land use - crops                            km2              2.385811e+03   \n",
+              "Land use - pasture                          km2              2.587439e+03   \n",
+              "Land use - forest                           km2              1.605920e+03   \n",
+              "Land use                                    km2              7.069927e+03   \n",
+              "\n",
+              "                                                     Poland                \\\n",
+              "CO2 - GWP100                                kg CO2eq         2.453728e+08   \n",
+              "Global Warming Potential 100                kg CO2eq         5.464986e+08   \n",
+              "Land use - crops                            km2              9.591758e+02   \n",
+              "Land use - pasture                          km2              1.105965e+03   \n",
+              "Land use - forest                           km2              8.059092e+02   \n",
+              "Land use                                    km2              3.117329e+03   \n",
+              "\n",
+              "                                                     Portugal              \\\n",
+              "CO2 - GWP100                                kg CO2eq         3.450021e+08   \n",
+              "Global Warming Potential 100                kg CO2eq         9.517070e+08   \n",
+              "Land use - crops                            km2              1.461194e+03   \n",
+              "Land use - pasture                          km2              1.201713e+03   \n",
+              "Land use - forest                           km2              1.891284e+03   \n",
+              "Land use                                    km2              5.132153e+03   \n",
+              "\n",
+              "                                                     Romania               \\\n",
+              "CO2 - GWP100                                kg CO2eq         7.566167e+07   \n",
+              "Global Warming Potential 100                kg CO2eq         1.865556e+08   \n",
+              "Land use - crops                            km2              3.025729e+02   \n",
+              "Land use - pasture                          km2              3.625386e+02   \n",
+              "Land use - forest                           km2              2.471999e+02   \n",
+              "Land use                                    km2              9.878538e+02   \n",
+              "\n",
+              "                                                     Sweden                \\\n",
+              "CO2 - GWP100                                kg CO2eq         2.303119e+08   \n",
+              "Global Warming Potential 100                kg CO2eq         6.140628e+08   \n",
+              "Land use - crops                            km2              7.237827e+02   \n",
+              "Land use - pasture                          km2              1.246377e+03   \n",
+              "Land use - forest                           km2              6.569606e+02   \n",
+              "Land use                                    km2              2.827883e+03   \n",
+              "\n",
+              "                                                     Slovenia              \\\n",
+              "CO2 - GWP100                                kg CO2eq         3.372395e+07   \n",
+              "Global Warming Potential 100                kg CO2eq         1.090945e+08   \n",
+              "Land use - crops                            km2              3.082110e+02   \n",
+              "Land use - pasture                          km2              3.200403e+02   \n",
+              "Land use - forest                           km2              1.563945e+02   \n",
+              "Land use                                    km2              8.324387e+02   \n",
+              "\n",
+              "                                                     Slovakia              \n",
+              "CO2 - GWP100                                kg CO2eq         4.217109e+07  \n",
+              "Global Warming Potential 100                kg CO2eq         8.213254e+07  \n",
+              "Land use - crops                            km2              1.703416e+02  \n",
+              "Land use - pasture                          km2              1.737542e+02  \n",
+              "Land use - forest                           km2              1.031643e+02  \n",
+              "Land use                                    km2              4.787863e+02  \n",
+              "\n",
+              "[6 rows x 27 columns]"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 30
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "interstate-northeast"
+      },
+      "source": [
+        "**Export**"
+      ],
+      "id": "interstate-northeast"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "hydraulic-connecticut"
+      },
+      "source": [
+        "df1.to_excel(\"brazil_countrywise_fin.xlsx\",sheet_name=\"a\")\n",
+        "# data sent to an excel sheet"
+      ],
+      "id": "hydraulic-connecticut",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "modified-charles"
+      },
+      "source": [
+        "### Finding Sectorwise consumption ###"
+      ],
+      "id": "modified-charles"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "tropical-ballet",
+        "outputId": "f97463aa-a9c2-41f6-eb31-80b0ddef2fc3"
+      },
+      "source": [
+        "XC_sec=np.zeros([6,7])\n",
+        "XC_sec.shape"
+      ],
+      "id": "tropical-ballet",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(6, 7)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 32
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "structured-consortium",
+        "outputId": "eff3962b-bc15-401c-cf4c-43dd195687b0"
+      },
+      "source": [
+        "for i in range(0,7):\n",
+        "    XC_sec[:,i]=XC[:,i::7].sum(axis=1)\n",
+        "XC_sec.shape\n"
+      ],
+      "id": "structured-consortium",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(6, 7)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 33
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "informal-locking",
+        "outputId": "83656cb4-f545-4777-e534-79c325a5f81e"
+      },
+      "source": [
+        "df2=pd.DataFrame(XC_sec,columns=FD_Cats,index=[Midpoints[midno],MPUnits[midno]])\n",
+        "df2"
+      ],
+      "id": "informal-locking",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th>Final consumption expenditure by households</th>\n",
+              "      <th>Final consumption expenditure by non-profit organisations serving households (NPISH)</th>\n",
+              "      <th>Final consumption expenditure by government</th>\n",
+              "      <th>Gross fixed capital formation</th>\n",
+              "      <th>Changes in inventories</th>\n",
+              "      <th>Changes in valuables</th>\n",
+              "      <th>Exports: Total (fob)</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>CO2 - GWP100</th>\n",
+              "      <th>kg CO2eq</th>\n",
+              "      <td>3.915984e+09</td>\n",
+              "      <td>2.950938e+08</td>\n",
+              "      <td>6.425130e+08</td>\n",
+              "      <td>1.907069e+09</td>\n",
+              "      <td>1.883719e+08</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Global Warming Potential 100</th>\n",
+              "      <th>kg CO2eq</th>\n",
+              "      <td>1.357305e+10</td>\n",
+              "      <td>7.435462e+08</td>\n",
+              "      <td>1.549090e+09</td>\n",
+              "      <td>2.897041e+09</td>\n",
+              "      <td>4.930276e+08</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Land use - crops</th>\n",
+              "      <th>km2</th>\n",
+              "      <td>2.700528e+04</td>\n",
+              "      <td>1.292833e+03</td>\n",
+              "      <td>2.547456e+03</td>\n",
+              "      <td>2.856428e+03</td>\n",
+              "      <td>7.687656e+02</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Land use - pasture</th>\n",
+              "      <th>km2</th>\n",
+              "      <td>3.475388e+04</td>\n",
+              "      <td>1.540162e+03</td>\n",
+              "      <td>3.024891e+03</td>\n",
+              "      <td>2.627989e+03</td>\n",
+              "      <td>9.671963e+02</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Land use - forest</th>\n",
+              "      <th>km2</th>\n",
+              "      <td>2.227636e+04</td>\n",
+              "      <td>1.421457e+03</td>\n",
+              "      <td>2.413481e+03</td>\n",
+              "      <td>3.473358e+03</td>\n",
+              "      <td>8.361466e+02</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Land use</th>\n",
+              "      <th>km2</th>\n",
+              "      <td>9.084300e+04</td>\n",
+              "      <td>4.688839e+03</td>\n",
+              "      <td>8.723370e+03</td>\n",
+              "      <td>1.001921e+04</td>\n",
+              "      <td>2.827628e+03</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "                                                      Final consumption expenditure by households                                           \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       3.915984e+09                                      \n",
+              "Global Warming Potential 100                kg CO2eq                                       1.357305e+10                                      \n",
+              "Land use - crops                            km2                                            2.700528e+04                                      \n",
+              "Land use - pasture                          km2                                            3.475388e+04                                      \n",
+              "Land use - forest                           km2                                            2.227636e+04                                      \n",
+              "Land use                                    km2                                            9.084300e+04                                      \n",
+              "\n",
+              "                                                      Final consumption expenditure by non-profit organisations serving households (NPISH)  \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       2.950938e+08                                      \n",
+              "Global Warming Potential 100                kg CO2eq                                       7.435462e+08                                      \n",
+              "Land use - crops                            km2                                            1.292833e+03                                      \n",
+              "Land use - pasture                          km2                                            1.540162e+03                                      \n",
+              "Land use - forest                           km2                                            1.421457e+03                                      \n",
+              "Land use                                    km2                                            4.688839e+03                                      \n",
+              "\n",
+              "                                                      Final consumption expenditure by government                                           \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       6.425130e+08                                      \n",
+              "Global Warming Potential 100                kg CO2eq                                       1.549090e+09                                      \n",
+              "Land use - crops                            km2                                            2.547456e+03                                      \n",
+              "Land use - pasture                          km2                                            3.024891e+03                                      \n",
+              "Land use - forest                           km2                                            2.413481e+03                                      \n",
+              "Land use                                    km2                                            8.723370e+03                                      \n",
+              "\n",
+              "                                                      Gross fixed capital formation                                                         \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       1.907069e+09                                      \n",
+              "Global Warming Potential 100                kg CO2eq                                       2.897041e+09                                      \n",
+              "Land use - crops                            km2                                            2.856428e+03                                      \n",
+              "Land use - pasture                          km2                                            2.627989e+03                                      \n",
+              "Land use - forest                           km2                                            3.473358e+03                                      \n",
+              "Land use                                    km2                                            1.001921e+04                                      \n",
+              "\n",
+              "                                                      Changes in inventories                                                                \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       1.883719e+08                                      \n",
+              "Global Warming Potential 100                kg CO2eq                                       4.930276e+08                                      \n",
+              "Land use - crops                            km2                                            7.687656e+02                                      \n",
+              "Land use - pasture                          km2                                            9.671963e+02                                      \n",
+              "Land use - forest                           km2                                            8.361466e+02                                      \n",
+              "Land use                                    km2                                            2.827628e+03                                      \n",
+              "\n",
+              "                                                      Changes in valuables                                                                  \\\n",
+              "CO2 - GWP100                                kg CO2eq                                                0.0                                      \n",
+              "Global Warming Potential 100                kg CO2eq                                                0.0                                      \n",
+              "Land use - crops                            km2                                                     0.0                                      \n",
+              "Land use - pasture                          km2                                                     0.0                                      \n",
+              "Land use - forest                           km2                                                     0.0                                      \n",
+              "Land use                                    km2                                                     0.0                                      \n",
+              "\n",
+              "                                                      Exports: Total (fob)                                                                  \n",
+              "CO2 - GWP100                                kg CO2eq                                                0.0                                     \n",
+              "Global Warming Potential 100                kg CO2eq                                                0.0                                     \n",
+              "Land use - crops                            km2                                                     0.0                                     \n",
+              "Land use - pasture                          km2                                                     0.0                                     \n",
+              "Land use - forest                           km2                                                     0.0                                     \n",
+              "Land use                                    km2                                                     0.0                                     "
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 34
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "necessary-murray"
+      },
+      "source": [
+        "**Export**"
+      ],
+      "id": "necessary-murray"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "executive-import"
+      },
+      "source": [
+        "df2.to_excel(\"brazil_sectorwise_fin.xlsx\",sheet_name=\"b\") ##Export"
+      ],
+      "id": "executive-import",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "limited-culture"
+      },
+      "source": [
+        "### Finding Peoduct-wise consumption ###"
+      ],
+      "id": "limited-culture"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "previous-evaluation"
+      },
+      "source": [
+        "Y_mat_only_eu_agg=np.zeros((Y_mat.shape[0],euno)) #construction of a blank array"
+      ],
+      "id": "previous-evaluation",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "internal-teacher",
+        "outputId": "244789c0-a0f2-4b5a-da5e-820758557595"
+      },
+      "source": [
+        "Y_mat_only_eu_agg.shape"
+      ],
+      "id": "internal-teacher",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(7987, 27)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 40
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "alert-composition"
+      },
+      "source": [
+        "for c in range(0,27):\n",
+        "    Y_mat_only_eu_agg[:,c]=Y_mat[:,c*7:c*7+4].sum(axis=1) #slicing and aggregating only EU data"
+      ],
+      "id": "alert-composition",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "typical-practice",
+        "outputId": "8b6bfba9-d51e-4adb-8d8d-a90850c2200b"
+      },
+      "source": [
+        "Y_mat_only_eu_agg.shape"
+      ],
+      "id": "typical-practice",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(7987, 27)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 42
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "flush-piano"
+      },
+      "source": [
+        "X_full_for_prod=np.einsum('ip,py->ip',L_mat,Y_mat_only_eu_agg) #einsum() function is used to avoid aggregation"
+      ],
+      "id": "flush-piano",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "tired-defendant",
+        "outputId": "4f2cd070-a462-4278-b47b-56eb07f712cf"
+      },
+      "source": [
+        "X_full_for_prod.shape"
+      ],
+      "id": "tired-defendant",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(7987, 7987)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 44
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "formal-length"
+      },
+      "source": [
+        "X_full_for_prod_br=X_full_for_prod[cno*nop:(cno+1)*nop,:]"
+      ],
+      "id": "formal-length",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "annual-latino",
+        "outputId": "d3a75c2c-3737-4c1b-f6da-045f83af8cfd"
+      },
+      "source": [
+        "X_full_for_prod_br.shape"
+      ],
+      "id": "annual-latino",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(163, 7987)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 46
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "automotive-split"
+      },
+      "source": [
+        "Env_Midpoints_Product_Full = np.einsum('mi,ip->mp',Scf_br, X_full_for_prod_br)"
+      ],
+      "id": "automotive-split",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "lovely-congress",
+        "outputId": "d8a527c6-81b3-4955-e639-5fbbb980c43a"
+      },
+      "source": [
+        "Env_Midpoints_Product_Full.shape"
+      ],
+      "id": "lovely-congress",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(6, 7987)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 48
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "egyptian-teacher"
+      },
+      "source": [
+        "Env_Midpoints_Product_fin = np.reshape(Env_Midpoints_Product_Full,(6,nor,nop)).sum(axis=1) \n",
+        "#reshape function is used for aggregating and reshaping the matrix "
+      ],
+      "id": "egyptian-teacher",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "seeing-cemetery",
+        "outputId": "aad1e9ef-eca0-4fd8-9b56-f5ee20650cb4"
+      },
+      "source": [
+        "Env_Midpoints_Product_fin.shape"
+      ],
+      "id": "seeing-cemetery",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(6, 163)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 50
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "automated-arthritis"
+      },
+      "source": [
+        "df4=pd.DataFrame(Env_Midpoints_Product_fin,index=[Midpoints[midno],MPUnits[midno]],columns=Products)"
+      ],
+      "id": "automated-arthritis",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "impressed-brass",
+        "outputId": "513be31f-a4a6-4072-a1dc-bc888ee3fc91"
+      },
+      "source": [
+        "df4"
+      ],
+      "id": "impressed-brass",
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th>Paddy rice</th>\n",
+              "      <th>Wheat</th>\n",
+              "      <th>Cereal grains nec</th>\n",
+              "      <th>Vegetables, fruit, nuts</th>\n",
+              "      <th>Oil seeds</th>\n",
+              "      <th>Sugar cane, sugar beet</th>\n",
+              "      <th>Plant-based fibers</th>\n",
+              "      <th>Crops nec</th>\n",
+              "      <th>Cattle</th>\n",
+              "      <th>Pigs</th>\n",
+              "      <th>...</th>\n",
+              "      <th>Paper for treatment: landfill</th>\n",
+              "      <th>Plastic waste for treatment: landfill</th>\n",
+              "      <th>Inert/metal/hazardous waste for treatment: landfill</th>\n",
+              "      <th>Textiles waste for treatment: landfill</th>\n",
+              "      <th>Wood waste for treatment: landfill</th>\n",
+              "      <th>Membership organisation services n.e.c.</th>\n",
+              "      <th>Recreational, cultural and sporting services</th>\n",
+              "      <th>Other services</th>\n",
+              "      <th>Private households with employed persons</th>\n",
+              "      <th>Extra-territorial organizations and bodies</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>CO2 - GWP100</th>\n",
+              "      <th>kg CO2eq</th>\n",
+              "      <td>1.038340e+06</td>\n",
+              "      <td>4.128949e+06</td>\n",
+              "      <td>9.097662e+06</td>\n",
+              "      <td>4.615686e+07</td>\n",
+              "      <td>2.834374e+07</td>\n",
+              "      <td>3.542253e+06</td>\n",
+              "      <td>1.399917e+06</td>\n",
+              "      <td>3.081217e+08</td>\n",
+              "      <td>2.573290e+07</td>\n",
+              "      <td>5.962582e+06</td>\n",
+              "      <td>...</td>\n",
+              "      <td>9.228660e+05</td>\n",
+              "      <td>220564.812708</td>\n",
+              "      <td>1.117312e+06</td>\n",
+              "      <td>226680.605702</td>\n",
+              "      <td>299941.149696</td>\n",
+              "      <td>5.597426e+07</td>\n",
+              "      <td>9.093904e+07</td>\n",
+              "      <td>1.521135e+07</td>\n",
+              "      <td>9.132645e+06</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Global Warming Potential 100</th>\n",
+              "      <th>kg CO2eq</th>\n",
+              "      <td>5.767092e+06</td>\n",
+              "      <td>1.327670e+07</td>\n",
+              "      <td>3.391028e+07</td>\n",
+              "      <td>1.420116e+08</td>\n",
+              "      <td>4.641325e+07</td>\n",
+              "      <td>1.179155e+07</td>\n",
+              "      <td>2.130788e+06</td>\n",
+              "      <td>4.598016e+08</td>\n",
+              "      <td>1.874164e+09</td>\n",
+              "      <td>6.846433e+07</td>\n",
+              "      <td>...</td>\n",
+              "      <td>1.788668e+06</td>\n",
+              "      <td>455565.824736</td>\n",
+              "      <td>1.990643e+06</td>\n",
+              "      <td>436212.511530</td>\n",
+              "      <td>547862.985619</td>\n",
+              "      <td>1.157360e+08</td>\n",
+              "      <td>1.872990e+08</td>\n",
+              "      <td>3.217155e+07</td>\n",
+              "      <td>1.655948e+07</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Land use - crops</th>\n",
+              "      <th>km2</th>\n",
+              "      <td>2.123942e+01</td>\n",
+              "      <td>9.224057e+01</td>\n",
+              "      <td>3.719750e+02</td>\n",
+              "      <td>1.284165e+03</td>\n",
+              "      <td>1.439059e+03</td>\n",
+              "      <td>1.247300e+02</td>\n",
+              "      <td>1.885899e+01</td>\n",
+              "      <td>1.791465e+03</td>\n",
+              "      <td>2.782411e+02</td>\n",
+              "      <td>8.722786e+01</td>\n",
+              "      <td>...</td>\n",
+              "      <td>2.477969e+00</td>\n",
+              "      <td>0.966772</td>\n",
+              "      <td>2.333025e+00</td>\n",
+              "      <td>0.597094</td>\n",
+              "      <td>0.834266</td>\n",
+              "      <td>1.461906e+02</td>\n",
+              "      <td>3.092389e+02</td>\n",
+              "      <td>4.874673e+01</td>\n",
+              "      <td>1.975552e+01</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Land use - pasture</th>\n",
+              "      <th>km2</th>\n",
+              "      <td>8.228802e+00</td>\n",
+              "      <td>5.730313e+01</td>\n",
+              "      <td>1.451857e+02</td>\n",
+              "      <td>1.300062e+03</td>\n",
+              "      <td>7.579050e+02</td>\n",
+              "      <td>7.648500e+01</td>\n",
+              "      <td>3.374556e+01</td>\n",
+              "      <td>4.611347e+02</td>\n",
+              "      <td>5.784466e+03</td>\n",
+              "      <td>4.523046e+01</td>\n",
+              "      <td>...</td>\n",
+              "      <td>2.049610e+00</td>\n",
+              "      <td>0.734538</td>\n",
+              "      <td>2.020708e+00</td>\n",
+              "      <td>0.493307</td>\n",
+              "      <td>0.680153</td>\n",
+              "      <td>1.706622e+02</td>\n",
+              "      <td>3.091740e+02</td>\n",
+              "      <td>5.390347e+01</td>\n",
+              "      <td>2.332706e+01</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Land use - forest</th>\n",
+              "      <th>km2</th>\n",
+              "      <td>2.858064e+00</td>\n",
+              "      <td>9.274090e+00</td>\n",
+              "      <td>1.602085e+01</td>\n",
+              "      <td>1.447707e+02</td>\n",
+              "      <td>7.739796e+01</td>\n",
+              "      <td>4.099164e-01</td>\n",
+              "      <td>3.984840e+00</td>\n",
+              "      <td>2.793263e+03</td>\n",
+              "      <td>5.577119e+02</td>\n",
+              "      <td>1.849720e+02</td>\n",
+              "      <td>...</td>\n",
+              "      <td>2.718326e+00</td>\n",
+              "      <td>0.510277</td>\n",
+              "      <td>2.989737e+00</td>\n",
+              "      <td>0.518416</td>\n",
+              "      <td>0.736427</td>\n",
+              "      <td>1.499239e+02</td>\n",
+              "      <td>3.611711e+02</td>\n",
+              "      <td>6.071226e+01</td>\n",
+              "      <td>1.726850e+01</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>Land use</th>\n",
+              "      <th>km2</th>\n",
+              "      <td>3.319969e+01</td>\n",
+              "      <td>1.616519e+02</td>\n",
+              "      <td>5.380774e+02</td>\n",
+              "      <td>2.773239e+03</td>\n",
+              "      <td>2.298014e+03</td>\n",
+              "      <td>2.017502e+02</td>\n",
+              "      <td>5.780713e+01</td>\n",
+              "      <td>5.899463e+03</td>\n",
+              "      <td>6.790852e+03</td>\n",
+              "      <td>3.739564e+02</td>\n",
+              "      <td>...</td>\n",
+              "      <td>8.076605e+00</td>\n",
+              "      <td>2.367524</td>\n",
+              "      <td>8.257111e+00</td>\n",
+              "      <td>1.767241</td>\n",
+              "      <td>2.475893</td>\n",
+              "      <td>5.125923e+02</td>\n",
+              "      <td>1.089955e+03</td>\n",
+              "      <td>1.819157e+02</td>\n",
+              "      <td>6.562821e+01</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "<p>6 rows × 163 columns</p>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "                                                      Paddy rice                                                                                                                               \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       1.038340e+06                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       5.767092e+06                                                                                         \n",
+              "Land use - crops                            km2                                            2.123942e+01                                                                                         \n",
+              "Land use - pasture                          km2                                            8.228802e+00                                                                                         \n",
+              "Land use - forest                           km2                                            2.858064e+00                                                                                         \n",
+              "Land use                                    km2                                            3.319969e+01                                                                                         \n",
+              "\n",
+              "                                                      Wheat                                                                                                                                    \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       4.128949e+06                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       1.327670e+07                                                                                         \n",
+              "Land use - crops                            km2                                            9.224057e+01                                                                                         \n",
+              "Land use - pasture                          km2                                            5.730313e+01                                                                                         \n",
+              "Land use - forest                           km2                                            9.274090e+00                                                                                         \n",
+              "Land use                                    km2                                            1.616519e+02                                                                                         \n",
+              "\n",
+              "                                                      Cereal grains nec                                                                                                                        \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       9.097662e+06                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       3.391028e+07                                                                                         \n",
+              "Land use - crops                            km2                                            3.719750e+02                                                                                         \n",
+              "Land use - pasture                          km2                                            1.451857e+02                                                                                         \n",
+              "Land use - forest                           km2                                            1.602085e+01                                                                                         \n",
+              "Land use                                    km2                                            5.380774e+02                                                                                         \n",
+              "\n",
+              "                                                      Vegetables, fruit, nuts                                                                                                                  \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       4.615686e+07                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       1.420116e+08                                                                                         \n",
+              "Land use - crops                            km2                                            1.284165e+03                                                                                         \n",
+              "Land use - pasture                          km2                                            1.300062e+03                                                                                         \n",
+              "Land use - forest                           km2                                            1.447707e+02                                                                                         \n",
+              "Land use                                    km2                                            2.773239e+03                                                                                         \n",
+              "\n",
+              "                                                      Oil seeds                                                                                                                                \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       2.834374e+07                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       4.641325e+07                                                                                         \n",
+              "Land use - crops                            km2                                            1.439059e+03                                                                                         \n",
+              "Land use - pasture                          km2                                            7.579050e+02                                                                                         \n",
+              "Land use - forest                           km2                                            7.739796e+01                                                                                         \n",
+              "Land use                                    km2                                            2.298014e+03                                                                                         \n",
+              "\n",
+              "                                                      Sugar cane, sugar beet                                                                                                                   \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       3.542253e+06                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       1.179155e+07                                                                                         \n",
+              "Land use - crops                            km2                                            1.247300e+02                                                                                         \n",
+              "Land use - pasture                          km2                                            7.648500e+01                                                                                         \n",
+              "Land use - forest                           km2                                            4.099164e-01                                                                                         \n",
+              "Land use                                    km2                                            2.017502e+02                                                                                         \n",
+              "\n",
+              "                                                      Plant-based fibers                                                                                                                       \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       1.399917e+06                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       2.130788e+06                                                                                         \n",
+              "Land use - crops                            km2                                            1.885899e+01                                                                                         \n",
+              "Land use - pasture                          km2                                            3.374556e+01                                                                                         \n",
+              "Land use - forest                           km2                                            3.984840e+00                                                                                         \n",
+              "Land use                                    km2                                            5.780713e+01                                                                                         \n",
+              "\n",
+              "                                                      Crops nec                                                                                                                                \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       3.081217e+08                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       4.598016e+08                                                                                         \n",
+              "Land use - crops                            km2                                            1.791465e+03                                                                                         \n",
+              "Land use - pasture                          km2                                            4.611347e+02                                                                                         \n",
+              "Land use - forest                           km2                                            2.793263e+03                                                                                         \n",
+              "Land use                                    km2                                            5.899463e+03                                                                                         \n",
+              "\n",
+              "                                                      Cattle                                                                                                                                   \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       2.573290e+07                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       1.874164e+09                                                                                         \n",
+              "Land use - crops                            km2                                            2.782411e+02                                                                                         \n",
+              "Land use - pasture                          km2                                            5.784466e+03                                                                                         \n",
+              "Land use - forest                           km2                                            5.577119e+02                                                                                         \n",
+              "Land use                                    km2                                            6.790852e+03                                                                                         \n",
+              "\n",
+              "                                                      Pigs                                                                                                                                     \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       5.962582e+06                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       6.846433e+07                                                                                         \n",
+              "Land use - crops                            km2                                            8.722786e+01                                                                                         \n",
+              "Land use - pasture                          km2                                            4.523046e+01                                                                                         \n",
+              "Land use - forest                           km2                                            1.849720e+02                                                                                         \n",
+              "Land use                                    km2                                            3.739564e+02                                                                                         \n",
+              "\n",
+              "                                                      ...  \\\n",
+              "CO2 - GWP100                                kg CO2eq  ...   \n",
+              "Global Warming Potential 100                kg CO2eq  ...   \n",
+              "Land use - crops                            km2       ...   \n",
+              "Land use - pasture                          km2       ...   \n",
+              "Land use - forest                           km2       ...   \n",
+              "Land use                                    km2       ...   \n",
+              "\n",
+              "                                                      Paper for treatment: landfill                                                                                                            \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       9.228660e+05                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       1.788668e+06                                                                                         \n",
+              "Land use - crops                            km2                                            2.477969e+00                                                                                         \n",
+              "Land use - pasture                          km2                                            2.049610e+00                                                                                         \n",
+              "Land use - forest                           km2                                            2.718326e+00                                                                                         \n",
+              "Land use                                    km2                                            8.076605e+00                                                                                         \n",
+              "\n",
+              "                                                      Plastic waste for treatment: landfill                                                                                                    \\\n",
+              "CO2 - GWP100                                kg CO2eq                                      220564.812708                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                      455565.824736                                                                                         \n",
+              "Land use - crops                            km2                                                0.966772                                                                                         \n",
+              "Land use - pasture                          km2                                                0.734538                                                                                         \n",
+              "Land use - forest                           km2                                                0.510277                                                                                         \n",
+              "Land use                                    km2                                                2.367524                                                                                         \n",
+              "\n",
+              "                                                      Inert/metal/hazardous waste for treatment: landfill                                                                                      \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       1.117312e+06                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       1.990643e+06                                                                                         \n",
+              "Land use - crops                            km2                                            2.333025e+00                                                                                         \n",
+              "Land use - pasture                          km2                                            2.020708e+00                                                                                         \n",
+              "Land use - forest                           km2                                            2.989737e+00                                                                                         \n",
+              "Land use                                    km2                                            8.257111e+00                                                                                         \n",
+              "\n",
+              "                                                      Textiles waste for treatment: landfill                                                                                                   \\\n",
+              "CO2 - GWP100                                kg CO2eq                                      226680.605702                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                      436212.511530                                                                                         \n",
+              "Land use - crops                            km2                                                0.597094                                                                                         \n",
+              "Land use - pasture                          km2                                                0.493307                                                                                         \n",
+              "Land use - forest                           km2                                                0.518416                                                                                         \n",
+              "Land use                                    km2                                                1.767241                                                                                         \n",
+              "\n",
+              "                                                      Wood waste for treatment: landfill                                                                                                       \\\n",
+              "CO2 - GWP100                                kg CO2eq                                      299941.149696                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                      547862.985619                                                                                         \n",
+              "Land use - crops                            km2                                                0.834266                                                                                         \n",
+              "Land use - pasture                          km2                                                0.680153                                                                                         \n",
+              "Land use - forest                           km2                                                0.736427                                                                                         \n",
+              "Land use                                    km2                                                2.475893                                                                                         \n",
+              "\n",
+              "                                                      Membership organisation services n.e.c.                                                                                                  \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       5.597426e+07                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       1.157360e+08                                                                                         \n",
+              "Land use - crops                            km2                                            1.461906e+02                                                                                         \n",
+              "Land use - pasture                          km2                                            1.706622e+02                                                                                         \n",
+              "Land use - forest                           km2                                            1.499239e+02                                                                                         \n",
+              "Land use                                    km2                                            5.125923e+02                                                                                         \n",
+              "\n",
+              "                                                      Recreational, cultural and sporting services                                                                                             \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       9.093904e+07                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       1.872990e+08                                                                                         \n",
+              "Land use - crops                            km2                                            3.092389e+02                                                                                         \n",
+              "Land use - pasture                          km2                                            3.091740e+02                                                                                         \n",
+              "Land use - forest                           km2                                            3.611711e+02                                                                                         \n",
+              "Land use                                    km2                                            1.089955e+03                                                                                         \n",
+              "\n",
+              "                                                      Other services                                                                                                                           \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       1.521135e+07                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       3.217155e+07                                                                                         \n",
+              "Land use - crops                            km2                                            4.874673e+01                                                                                         \n",
+              "Land use - pasture                          km2                                            5.390347e+01                                                                                         \n",
+              "Land use - forest                           km2                                            6.071226e+01                                                                                         \n",
+              "Land use                                    km2                                            1.819157e+02                                                                                         \n",
+              "\n",
+              "                                                      Private households with employed persons                                                                                                 \\\n",
+              "CO2 - GWP100                                kg CO2eq                                       9.132645e+06                                                                                         \n",
+              "Global Warming Potential 100                kg CO2eq                                       1.655948e+07                                                                                         \n",
+              "Land use - crops                            km2                                            1.975552e+01                                                                                         \n",
+              "Land use - pasture                          km2                                            2.332706e+01                                                                                         \n",
+              "Land use - forest                           km2                                            1.726850e+01                                                                                         \n",
+              "Land use                                    km2                                            6.562821e+01                                                                                         \n",
+              "\n",
+              "                                                      Extra-territorial organizations and bodies                                                                                               \n",
+              "CO2 - GWP100                                kg CO2eq                                                0.0                                                                                        \n",
+              "Global Warming Potential 100                kg CO2eq                                                0.0                                                                                        \n",
+              "Land use - crops                            km2                                                     0.0                                                                                        \n",
+              "Land use - pasture                          km2                                                     0.0                                                                                        \n",
+              "Land use - forest                           km2                                                     0.0                                                                                        \n",
+              "Land use                                    km2                                                     0.0                                                                                        \n",
+              "\n",
+              "[6 rows x 163 columns]"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 52
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "bacterial-thailand"
+      },
+      "source": [
+        "***Export***"
+      ],
+      "id": "bacterial-thailand"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ruled-adelaide"
+      },
+      "source": [
+        "df4.to_excel(\"prod_fin.xlsx\")"
+      ],
+      "id": "ruled-adelaide",
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
